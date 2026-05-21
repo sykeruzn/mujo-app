@@ -5,6 +5,7 @@ import { Analytics } from "./pages/Analytics";
 import { LiveTracking } from "./pages/LiveTracking";
 import { Auth } from "./pages/Auth";
 import { Habits } from "./pages/Habits";
+import { Entries } from "./pages/Entries";
 import { RequireAuth } from "./components/RequireAuth";
 
 export const router = createBrowserRouter([
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
     element: <RequireAuth><Layout /></RequireAuth>,
     children: [
       { index: true, Component: MoodTracker },
+      { path: "entries", Component: Entries },
       { path: "moods", Component: Analytics },
       { path: "mirror", Component: LiveTracking },
       { path: "habits", Component: Habits },
