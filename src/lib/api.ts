@@ -29,6 +29,12 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
     throw new Error(err.detail || `API error ${res.status}`);
   }
 
+  // 204 No Content — no body to parse (e.g. DELETE)
+  if (res.status === 204) {
+    if (!isGet) cache.clear();
+    return null;
+  }
+
   const json = await res.json();
   if (isGet) cache.set(path, { data: json, ts: Date.now() });
   if (!isGet) cache.clear();
