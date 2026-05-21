@@ -14,7 +14,7 @@ import {
   TropicalLeaf,
 } from "../components/FloralDecor";
 
-type Tab = "signin" | "signup" | "register";
+type Tab = "signin" | "register";
 
 interface FormState {
   name: string;
@@ -44,14 +44,6 @@ export function Auth() {
           password: form.password,
         });
         if (error) throw error;
-
-      } else if (tab === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: form.email,
-          password: form.password,
-        });
-        if (error) throw error;
-
       } else {
         // register — includes name and optional birthday
         if (form.password !== form.confirm) throw new Error("Passwords do not match");
@@ -63,7 +55,6 @@ export function Auth() {
         });
         if (error) throw error;
 
-        // Update birthday in profile if provided
         if (form.birthday && data.user) {
           await supabase
             .from("profiles")
@@ -74,10 +65,9 @@ export function Auth() {
 
       setDone(true);
       setTimeout(() => navigate("/"), 1400);
-
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An error occurred";
-      alert(message); // replace with a proper toast later
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -85,7 +75,6 @@ export function Auth() {
 
   const TABS: { key: Tab; label: string }[] = [
     { key: "signin", label: "Sign In" },
-    { key: "signup", label: "Sign Up" },
     { key: "register", label: "Register" },
   ];
 
@@ -124,12 +113,15 @@ export function Auth() {
         justifyContent: "center",
         fontFamily: "'Nunito', sans-serif",
         position: "relative",
-        overflow: "hidden",
+        overflow: "auto",
+        paddingTop: "48px",
+        paddingBottom: "48px",
+        boxSizing: "border-box",
       }}
     >
       {/* === Decorative flora — corners === */}
       {/* Top left */}
-      <div style={{ position: "absolute", top: -20, left: -20, pointerEvents: "none" }}>
+      <div style={{ position: "fixed", top: -20, left: -20, pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "relative", width: "200px", height: "200px" }}>
           <MonsteraLeaf size={90} style={{ position: "absolute", top: 0, left: 0, opacity: 0.35 }} />
           <FernBranch size={70} style={{ position: "absolute", top: 30, left: 60, opacity: 0.28, transform: "rotate(20deg)" }} />
@@ -140,7 +132,7 @@ export function Auth() {
       </div>
 
       {/* Top right */}
-      <div style={{ position: "absolute", top: -10, right: -10, pointerEvents: "none" }}>
+      <div style={{ position: "fixed", top: -10, right: -10, pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "relative", width: "180px", height: "180px" }}>
           <TropicalLeaf size={65} color="#3DBD6D" style={{ position: "absolute", top: 0, right: 10, opacity: 0.3, transform: "rotate(-15deg)" }} />
           <YellowFlower size={50} style={{ position: "absolute", top: 35, right: 20 }} />
@@ -150,7 +142,7 @@ export function Auth() {
       </div>
 
       {/* Bottom left */}
-      <div style={{ position: "absolute", bottom: -20, left: -20, pointerEvents: "none" }}>
+      <div style={{ position: "fixed", bottom: -20, left: -20, pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "relative", width: "180px", height: "180px" }}>
           <TropicalLeaf size={70} color="#3DBD6D" style={{ position: "absolute", bottom: 0, left: 0, opacity: 0.3, transform: "rotate(10deg) scaleX(-1)" }} />
           <GreenFlower size={44} style={{ position: "absolute", bottom: 45, left: 40 }} />
@@ -160,7 +152,7 @@ export function Auth() {
       </div>
 
       {/* Bottom right */}
-      <div style={{ position: "absolute", bottom: -20, right: -20, pointerEvents: "none" }}>
+      <div style={{ position: "fixed", bottom: -20, right: -20, pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "relative", width: "200px", height: "200px" }}>
           <MonsteraLeaf size={80} style={{ position: "absolute", bottom: 0, right: 0, opacity: 0.3, transform: "scaleX(-1)" }} />
           <PinkFlower size={48} style={{ position: "absolute", bottom: 50, right: 30 }} />
@@ -184,6 +176,7 @@ export function Auth() {
           overflow: "hidden",
           position: "relative",
           zIndex: 10,
+          flexShrink: 0,
         }}
       >
         {/* Card header */}
@@ -195,7 +188,6 @@ export function Auth() {
             overflow: "hidden",
           }}
         >
-          {/* Decorative bg */}
           <div style={{ position: "absolute", right: -15, top: -15, opacity: 0.14 }}>
             <PinkFlower size={80} />
           </div>
@@ -203,7 +195,6 @@ export function Auth() {
             <TealFlower size={70} />
           </div>
 
-          {/* Brand */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px", position: "relative", zIndex: 1 }}>
             <PinkFlower size={28} />
             <div>
@@ -279,8 +270,8 @@ export function Auth() {
                 onSubmit={handleSubmit}
                 style={{ display: "flex", flexDirection: "column", gap: "16px" }}
               >
-                {/* Name — signup + register */}
-                {(tab === "register") && (
+                {/* Name — register only */}
+                {tab === "register" && (
                   <div>
                     <label style={labelStyle}>Full Name</label>
                     <input
@@ -296,7 +287,7 @@ export function Auth() {
                   </div>
                 )}
 
-                {/* Email — all tabs */}
+                {/* Email */}
                 <div>
                   <label style={labelStyle}>Email Address</label>
                   <input
@@ -326,7 +317,7 @@ export function Auth() {
                   </div>
                 )}
 
-                {/* Password — all tabs */}
+                {/* Password */}
                 <div>
                   <label style={labelStyle}>Password</label>
                   <input
@@ -341,8 +332,8 @@ export function Auth() {
                   />
                 </div>
 
-                {/* Confirm password — signup + register */}
-                {(tab === "signup" || tab === "register") && (
+                {/* Confirm password — register only */}
+                {tab === "register" && (
                   <div>
                     <label style={labelStyle}>Confirm Password</label>
                     <input
@@ -358,7 +349,7 @@ export function Auth() {
                   </div>
                 )}
 
-                {/* Forgot password — sign in */}
+                {/* Forgot password — sign in only */}
                 {tab === "signin" && (
                   <div style={{ textAlign: "right", marginTop: "-8px" }}>
                     <button type="button" style={{ background: "none", border: "none", fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: "12px", color: "#6B3FA0", cursor: "pointer", padding: 0 }}>
@@ -398,16 +389,16 @@ export function Auth() {
                       Processing...
                     </>
                   ) : (
-                    tab === "signin" ? "Sign In to MuJo" : tab === "signup" ? "Create Account" : "Register"
+                    tab === "signin" ? "Sign In to MuJo" : "Create Account"
                   )}
                 </motion.button>
 
-                {/* Switch tab prompts */}
+                {/* Switch tab prompt */}
                 <div style={{ textAlign: "center", fontSize: "12px", color: "#9B8AB0", marginTop: "2px" }}>
                   {tab === "signin" ? (
                     <>
                       No account yet?{" "}
-                      <button type="button" onClick={() => setTab("signup")} style={{ background: "none", border: "none", fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: "12px", color: "#6B3FA0", cursor: "pointer", padding: 0 }}>
+                      <button type="button" onClick={() => setTab("register")} style={{ background: "none", border: "none", fontFamily: "'Fraunces', serif", fontWeight: 700, fontSize: "12px", color: "#6B3FA0", cursor: "pointer", padding: 0 }}>
                         Create one
                       </button>
                     </>
@@ -430,7 +421,7 @@ export function Auth() {
       <button
         onClick={() => navigate("/")}
         style={{
-          position: "absolute",
+          position: "fixed",
           top: "24px",
           left: "24px",
           background: "rgba(61,31,114,0.07)",
